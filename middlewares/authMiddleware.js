@@ -1,20 +1,37 @@
-const jwt =require('jsonwebtoken')
-const authMiddleware =(req,res,next)=>{
-    console.log("inside authentication middleware");
-    const token = req.headers['authorization'].split(" ")[1]
-    if(token){
-        try{
-        const jwtResponse=jwt.verify(token,process.env.JWTSECRET)
-        console.log(jwtResponse);
-        req.payload = jwtResponse.userMail
-        next()
-    }catch(err){
-        res.status(401).json("Invalid Token...")
-    }
-    }else{
-        res.status(401).json("Not an Authorised user...")
-    }
-    
-    
-}
-module.exports=authMiddleware
+
+const jwt = require("jsonwebtoken");
+
+const authMiddleware = (req, res, next) => {
+
+  const authHeader = req.headers.authorization;
+
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.status(401).json({
+      message: "Not an authorized user"
+    });
+  }
+
+  const token = authHeader.split(" ")[1];
+
+  try {
+
+    const jwtResponse = jwt.verify(
+      token,
+      process.env.JWTSECRET
+    );
+
+    req.payload = jwtResponse.userMail;
+    req.role = jwtResponse.role;
+
+    next();
+
+  } catch (error) {
+
+    return res.status(401).json({
+      message: "Invalid or expired token"
+    });
+
+  }
+};
+
+module.exports = authMiddleware;

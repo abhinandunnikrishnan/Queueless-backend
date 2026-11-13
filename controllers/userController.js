@@ -10,14 +10,14 @@ exports.registerController=async(req,res)=>{
     const existingUser=await users.findOne({email})
     if(existingUser){
         res.status(409).json("User already exist")
-    }else{
+    }
         let encryptPassword=await bcrypt.hash(password,10)
         const newUser=await users.create({
             username,email,password:encryptPassword
         })
         res.status(201).json(newUser)
-    }
-    res.status(201).json("register request received")
+    
+    
     
 }
 
