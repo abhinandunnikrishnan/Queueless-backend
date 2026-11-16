@@ -30,13 +30,10 @@ const bookingSchema = new mongoose.Schema(
     },
 
     service: {
-      type: String,
-      enum: [
-        "General Consultation",
-        "Specialist Consultation"
-      ],
-      required: true
-    },
+    type: String,
+    required: true,
+    trim: true
+},
 
     bookingDate: {
       type: String,
@@ -62,6 +59,22 @@ const bookingSchema = new mongoose.Schema(
       type: Number,
       required: true
     },
+
+    paymentStatus: {
+  type: String,
+  enum: ["pending", "paid", "failed"],
+  default: "pending"
+},
+
+stripeSessionId: {
+  type: String,
+  default: null
+},
+
+paymentId: {
+  type: String,
+  default: null
+},
 
     status: {
       type: String,
@@ -100,6 +113,16 @@ bookingSchema.index(
   },
   {
     unique: true
+  }
+);
+
+bookingSchema.index(
+  { stripeSessionId: 1 },
+  {
+    unique: true,
+    partialFilterExpression: {
+      stripeSessionId: { $type: "string" }
+    }
   }
 );
 

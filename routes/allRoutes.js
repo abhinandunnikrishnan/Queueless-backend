@@ -5,6 +5,8 @@ const multerMiddleware = require("../middlewares/multerMiddleware")
 const orgController = require("../controllers/orgController")
 const bookingController = require("../controllers/bookingController");
 const roleMiddleware = require("../middlewares/roleMiddleware");
+const adminController = require("../controllers/adminController");
+
 const router = new express.Router()
 // ------------------------------user-------------------------------------
 
@@ -34,17 +36,17 @@ router.get("/organizations",orgController.getAllOrganizationsController)
 // get single organisation
 router.get("/organizations/:id",orgController.viewSingleOrganisationController)
 
+// Update organisation profile
+router.put(
+    "/update-org",
+    authMiddleware,
+    orgController.updateOrgProfileController
+);
+
 
 
 // ================= BOOKING ROUTES =================
 
-// User books a token
-router.post(
-  "/bookings",
-  authMiddleware,
-  roleMiddleware("user"),
-  bookingController.createBookingController
-);
 
 // Get logged-in user's bookings
 router.get(
@@ -85,6 +87,53 @@ router.get(
   bookingController.getQueueAvailabilityController
 );
 
+
+// Create Stripe Checkout session
+router.post(
+  "/bookings/create-checkout-session",
+  authMiddleware,
+  roleMiddleware("user"),
+  bookingController.createCheckoutSessionController
+);
+
+
+router.get(
+  "/bookings/payment-status/:sessionId",
+  authMiddleware,
+  roleMiddleware("user"),
+  bookingController.checkPaymentStatusController
+);
+
+
+// ================= ADMIN ROUTES =================
+
+router.get(
+    "/admin/dashboard-stats",
+    authMiddleware,
+    roleMiddleware("admin"),
+    adminController.getAdminDashboardStatsController
+);
+
+router.get(
+    "/admin/resources",
+    authMiddleware,
+    roleMiddleware("admin"),
+    adminController.getAdminResourcesController
+);
+
+router.patch(
+    "/admin/organizations/:id/approve",
+    authMiddleware,
+    roleMiddleware("admin"),
+    adminController.approveOrganizationController
+);
+
+router.delete(
+    "/admin/organizations/:id",
+    authMiddleware,
+    roleMiddleware("admin"),
+    adminController.removeOrganizationController
+);
 
 
 module.exports=router

@@ -16,6 +16,11 @@ const orgSchema= new mongoose.Schema({
         type:String,
         default:"org"
     },
+    approvalStatus: {
+    type: String,
+    enum: ["pending", "approved", "rejected"],
+    default: "pending"
+},
     
     orgAddress:{
         type:String,
@@ -33,6 +38,31 @@ const orgSchema= new mongoose.Schema({
         type:String,
         default:"",
         enum: ["Hospital", "Service Center", "Salon", "Restaurant"]
+    },
+    orgQueueCount: {
+    type: Number,
+    required: true,
+    min: 1,
+    max: 3,
+    default: 1
+    },
+    orgQueues: {
+        type: [String],
+        required: true,
+        default: ["General Consultation"],
+        validate: {
+            validator: function (queues) {
+                return (
+                    queues.length >= 1 &&
+                    queues.length <= 3 &&
+                    queues.every(queue => queue.trim().length > 0) &&
+                    new Set(
+                        queues.map(queue => queue.trim().toLowerCase())
+                    ).size === queues.length
+                );
+            },
+            message: "Please provide 1 to 3 unique queue names."
+        }
     },
     orgTiming: {
         openingTime: {
